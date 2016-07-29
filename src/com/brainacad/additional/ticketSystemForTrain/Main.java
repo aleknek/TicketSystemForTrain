@@ -18,160 +18,187 @@ public class Main {
 
             String word = sc.nextLine();
             word = word.toLowerCase().trim();
+            boolean exit = false;
 
-            if (word.equals("help") || word.equals("помощь")) {
-                System.out.println("Купить билет по номеру поезда, команды - 'Купить' или 'Buy'");
-                System.out.println("Посмотреть список доступных поездов по маршруту, команды - 'Маршрут' или 'Route'");
-                System.out.println("Посмотреть список всех поездов, команды - 'Поезда' или 'Trains'");
-                System.out.println("Посмотреть наличие мест в вагоне, команда - 'Места вагон' или 'Seats car'");
-                System.out.println("Посмотреть наличие мест в поезде, команда - 'Места поезд' или 'Seats train'");
-                System.out.println("Посмотреть список пассажиров в вагоне, команда - 'Пассажиры' или 'Passengers'");
-                System.out.println("Посмотреть список всех поездов и пассажиров, команда - 'Поезда все' или 'Trains all'");
-                System.out.println("Выход из программы, команды - 'Выход' или 'Exit'");
+            switch (word) {
+                case "help":
+                case "помощь":
+                    printHelp();
+                    break;
+                case "exit":
+                case "выход":
+                    exit = true;
+                    break;
+                case "поезда все":
+                case "trains all":
+                    printListAllTrainAndAllPassenger(trains);
+                    break;
+                case "места вагон":
+                case "seats car":
+                    printSeatsInCar(sc, trains);
+                    break;
+                case "места поезд":
+                case "seats train":
+                    printSeatsInTrain(sc, trains);
+                    break;
+                case "пассажиры":
+                case "passengers":
+                    printListPassengers(sc, trains);
+                    break;
+                case "buy":
+                case "купить":
+                    exit = buyTicket(sc, trains, word);
+                    break;
+                case "маршрут":
+                case "route":
+                    printRoute(sc, trains, word);
+                    break;
+                case "поезда":
+                case "trains":
+                    printListAllTrain(trains);
+                    break;
+                default:
+                    System.out.println("Введите новую команду (список команд - 'Help' или 'Помощь'): ");
+                    continue;
             }
 
-            if (word.equals("exit") || word.equals("выход")) {
+            if (exit) {
                 break;
             }
-
-            if (word.equals("поезда все") || word.equals("trains all")) {
-                printListAllTrainAndAllPassenger(trains);
-            }
-
-            if (word.equals("места вагон") || word.equals("seats car")) {
-
-                Train train = getTrainByNumber(sc, trains);
-                System.out.println(train);
-
-                if (train != null) {
-
-                    System.out.println("Введите номер вагона и нажмите 'Ввод': ");
-
-                    int numberCar = getNumberCarOrSeat(sc);
-                    if (numberCar == -1) {
-                        System.out.println("Некорректный номер вагона. Проверьте правильность ввода и повторите еще раз");
-                        continue;
-                    }
-                    train.printListStatusSeats(numberCar);
-                }
-            }
-
-            if (word.equals("места поезд") || word.equals("seats train")) {
-
-                Train train = getTrainByNumber(sc, trains);
-                System.out.println(train);
-
-                if (train != null) {
-
-                    Iterator<Map.Entry<Integer, Car>> itrCars = train.getCars().entrySet().iterator();
-                    while (itrCars.hasNext()) {
-                        Map.Entry<Integer, Car> entry = itrCars.next();
-                        int numberCar = entry.getKey();
-                        System.out.println("Вагон № " + numberCar);
-                        train.printListStatusSeats(numberCar);
-                    }
-                }
-            }
-
-            if (word.equals("пассажиры") || word.equals("passengers")) {
-
-                Train train = getTrainByNumber(sc, trains);
-                System.out.println(train);
-
-                if (train != null) {
-
-                    System.out.println("Введите номер вагона и нажмите 'Ввод': ");
-
-                    int numberCar = getNumberCarOrSeat(sc);
-                    if (numberCar == -1) {
-                        System.out.println("Некорректный номер вагона. Проверьте правильность ввода и повторите еще раз");
-                        continue;
-                    }
-                    train.printListTrainAndPassenger(numberCar);
-                }
-            }
-
-
-            if (word.equals("buy") || word.equals("купить")) {
-
-                Train train = getTrainByNumber(sc, trains);
-
-                if (train != null) {
-
-                    boolean incorrectInput = true;
-
-                    System.out.println(train);
-
-                    while (incorrectInput) {
-
-                        System.out.println("Введите номер вагона и нажмите 'Ввод': ");
-
-                        int numberCar = getNumberCarOrSeat(sc);
-                        if (numberCar == -1) {
-                            if (word.equals("exit") || word.equals("выход")) {
-                                incorrectInput = false;
-                                break;
-                            }
-                            System.out.println("Некорректный номер вагона. Проверьте правильность ввода и повторите еще раз");
-                            continue;
-                        }
-
-                        System.out.println("Введите номер места и нажмите 'Ввод'. Место по умолчанию, выберите '0': ");
-
-                        int numberSeat = getNumberCarOrSeat(sc);
-                        if (numberSeat == -1) {
-                            if (word.equals("exit") || word.equals("выход")) {
-                                incorrectInput = false;
-                                break;
-                            }
-                            System.out.println("Некорректный номер места. Проверьте правильность ввода и повторите еще раз");
-                            continue;
-                        }
-
-                        System.out.println("Введите имя и фамилию пассажира через пробел: ");
-                        sc.hasNext();
-                        word = sc.nextLine().trim();
-
-                        int index = word.indexOf(" ");
-                        String firstName = word.substring(0, index);
-                        String lastName = word.substring(index + 1);
-                        train.buyTicket(numberCar, numberSeat, new Passenger(firstName, lastName));
-
-                        incorrectInput = false;
-
-                    }
-                } else {
-                    System.out.println("Поезд № " + word + " не найден. Посмотреть список поездов, команда 'Trains' или 'Поезда'. Выйти, команда - 'Exit'");
-                }
-            }
-
-            if (word.equals("маршрут") || word.equals("route")) {
-
-                System.out.println("Введите станцию отправления и станцию прибытия, через пробел");
-
-                sc.hasNext();
-                word = sc.nextLine().toLowerCase().trim();
-
-                int index = word.indexOf(" ");
-                String stationFrom = word.substring(0, index);
-                System.out.println(stationFrom);
-                String stationTo = word.substring(index + 1);
-
-                List<Train> trainList = getTrainByRoute(trains, stationFrom, stationTo);
-                Iterator<Train> listIterator = trainList.iterator();
-
-                while (listIterator.hasNext()) {
-                    System.out.println(listIterator.next());
-                }
-            }
-
-            if (word.equals("поезда") || word.equals("trains")) {
-                printListAllTrain(trains);
-            }
-            System.out.println("Введите новую команду (список команд - 'Help' или 'Помощь'): ");
         }
     }
 
+    public static void printHelp() {
+        System.out.println("Купить билет по номеру поезда, команды - 'Купить' или 'Buy'");
+        System.out.println("Посмотреть список доступных поездов по маршруту, команды - 'Маршрут' или 'Route'");
+        System.out.println("Посмотреть список всех поездов, команды - 'Поезда' или 'Trains'");
+        System.out.println("Посмотреть наличие мест в вагоне, команда - 'Места вагон' или 'Seats car'");
+        System.out.println("Посмотреть наличие мест в поезде, команда - 'Места поезд' или 'Seats train'");
+        System.out.println("Посмотреть список пассажиров в вагоне, команда - 'Пассажиры' или 'Passengers'");
+        System.out.println("Посмотреть список всех поездов и пассажиров, команда - 'Поезда все' или 'Trains all'");
+        System.out.println("Выход из программы, команды - 'Выход' или 'Exit'");
+    }
+
+    public static void printSeatsInCar(Scanner sc, Set<Train> trains) {
+
+        Train train = getTrainByNumber(sc, trains);
+        System.out.println(train);
+
+        if (train != null) {
+
+            System.out.println("Введите номер вагона и нажмите 'Ввод': ");
+
+            int numberCar = getNumberCarOrSeat(sc);
+            if (numberCar == -1) {
+                System.out.println("Некорректный номер вагона.");
+            }
+            train.printListStatusSeats(numberCar);
+        }
+    }
+
+    public static void printSeatsInTrain(Scanner sc, Set<Train> trains) {
+
+        Train train = getTrainByNumber(sc, trains);
+        System.out.println(train);
+
+        if (train != null) {
+
+            Iterator<Map.Entry<Integer, Car>> itrCars = train.getCars().entrySet().iterator();
+            while (itrCars.hasNext()) {
+                Map.Entry<Integer, Car> entry = itrCars.next();
+                int numberCar = entry.getKey();
+                System.out.println("Вагон № " + numberCar);
+                train.printListStatusSeats(numberCar);
+            }
+        }
+    }
+
+    public static void printListPassengers(Scanner sc, Set<Train> trains) {
+
+        Train train = getTrainByNumber(sc, trains);
+        System.out.println(train);
+
+        if (train != null) {
+
+            System.out.println("Введите номер вагона и нажмите 'Ввод': ");
+
+            int numberCar = getNumberCarOrSeat(sc);
+            if (numberCar == -1) {
+                System.out.println("Некорректный номер вагона.");
+            }
+            train.printListTrainAndPassenger(numberCar);
+        }
+    }
+
+    public static boolean buyTicket(Scanner sc, Set<Train> trains, String word) {
+
+        Train train = getTrainByNumber(sc, trains);
+
+        if (train != null) {
+
+            System.out.println(train);
+
+            while (true) {
+
+                System.out.println("Введите номер вагона и нажмите 'Ввод': ");
+
+                int numberCar = getNumberCarOrSeat(sc);
+                if (numberCar == -1) {
+                    if (word.equals("exit") || word.equals("выход")) {
+                        return true;
+                    }
+                    System.out.println("Некорректный номер вагона. Проверьте правильность ввода и повторите еще раз");
+                    continue;
+                }
+
+                System.out.println("Введите номер места и нажмите 'Ввод'. Место по умолчанию, выберите '0': ");
+
+                int numberSeat = getNumberCarOrSeat(sc);
+                if (numberSeat == -1) {
+                    if (word.equals("exit") || word.equals("выход")) {
+                        return true;
+                    }
+                    System.out.println("Некорректный номер места. Проверьте правильность ввода и повторите еще раз");
+                    continue;
+                }
+
+                System.out.println("Введите имя и фамилию пассажира через пробел: ");
+                sc.hasNext();
+                word = sc.nextLine().trim();
+
+                int index = word.indexOf(" ");
+                String firstName = word.substring(0, index);
+                String lastName = word.substring(index + 1);
+                train.buyTicket(numberCar, numberSeat, new Passenger(firstName, lastName));
+                return false;
+            }
+
+        } else {
+            System.out.println("Поезд № " + word + " не найден. Посмотреть список поездов, команда 'Trains' или 'Поезда'. Выйти, команда - 'Exit'");
+        }
+
+        return false;
+    }
+
+    public static void printRoute(Scanner sc, Set<Train> trains, String word) {
+
+        System.out.println("Введите станцию отправления и станцию прибытия, через пробел");
+
+        sc.hasNext();
+        word = sc.nextLine().toLowerCase().trim();
+
+        int index = word.indexOf(" ");
+        String stationFrom = word.substring(0, index);
+        System.out.println(stationFrom);
+        String stationTo = word.substring(index + 1);
+
+        List<Train> trainList = getTrainByRoute(trains, stationFrom, stationTo);
+        Iterator<Train> listIterator = trainList.iterator();
+
+        while (listIterator.hasNext()) {
+            System.out.println(listIterator.next());
+        }
+    }
 
     public static Set<Train> addTrains() {
 
